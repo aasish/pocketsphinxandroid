@@ -25,6 +25,11 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 	 */
 	RecognizerTask rec;
 	/**
+	 * Download data
+	 * 
+	 */
+	DownloadData downloader;
+	/**
 	 * Thread in which the recognizer task runs.
 	 */
 	Thread rec_thread;
@@ -78,7 +83,7 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 			this.speech_dur = (float)nmsec / 1000;
 			if (this.listening) {
 				Log.d(getClass().getName(), "Showing Dialog");
-				this.rec_dialog = ProgressDialog.show(PocketSphinxAndroidDemo.this, "", "Recognizing voice...", true);
+				this.rec_dialog = ProgressDialog.show(PocketSphinxAndroidDemo.this, "", "Computing Final Pass .. ", true);
 				this.rec_dialog.setCancelable(false);
 				this.listening = false;
 			}
@@ -93,11 +98,12 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 
 	/** Called when the activity is first created. */
 	public void onCreate(Bundle savedInstanceState) {
-		CharSequence title = "CMU PocketSphinx Demo";
+		CharSequence title = "Carnegie Mellon PocketSphinx Recognizer Demo";
 		this.setTitle(title);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		this.rec = new RecognizerTask();
+		this.downloader = new DownloadData();
 		this.rec_thread = new Thread(this.rec);
 		this.listening = false;
 		Button b = (Button) findViewById(R.id.Button01);
@@ -114,7 +120,7 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 		final String hyp = b.getString("hyp");
 		that.edit_text.post(new Runnable() {
 			public void run() {
-				that.edit_text.setText(hyp);
+				that.edit_text.setText("First Pass:\n"+hyp);
 			}
 		});
 	}
@@ -125,7 +131,7 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 		final PocketSphinxAndroidDemo that = this;
 		this.edit_text.post(new Runnable() {
 			public void run() {
-				that.edit_text.setText(hyp);
+				that.edit_text.setText("Final Pass:\n"+ hyp);
 				Date end_date = new Date();
 				long nmsec = end_date.getTime() - that.start_date.getTime();
 				float rec_dur = (float)nmsec / 1000;
@@ -164,34 +170,45 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 
 		case R.id.download_data:
 			downloadData();
-		/* Actions in case that Edid Contacts is pressed */
-
+		
 		return true;
 
 		case R.id.configure :
-
-		/* Actions in case that Delete Contact is pressed */
+			setConfiguration();
+	
 
 		return true;
 		
 		case R.id.exit : 
-			
+			exitApplication();
 		return true;
+	  }
+	  return false;
 
-		}
-
-
-
-		return false;
-
-		}
+    }
 	
 	public void downloadData(){
+		String url = "tts.speech.cs.cmu.edu/apappu/android/edu.cmu.pocketsphinx.temp.zip";
+		String filename = "edu.cmu.pocketsphinx.temp.zip";
 		
+		downloader.saveUrlAsFile(url, filename);
 		
 	}
+	
+	public void exitApplication(){
+	
+	      Log.i("PocketSphinxAndroidDemo","terminated!!");
+	       super.onDestroy();
+	       this.finish();
+	}
+	
+	public void setConfiguration(){
+		
+		//may be open a new activity
+		//PocketSphinxSettings
+	}
 
-
+	
 
 		
 
