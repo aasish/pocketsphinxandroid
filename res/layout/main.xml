@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" android:background="@color/white">
+    <Button android:layout_width="350sp" android:layout_gravity="center_horizontal" android:id="@+id/Button01" android:layout_weight="0" android:text="Hold and Speak" android:layout_height="wrap_content"></Button>
+
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/PerformanceText" android:text="@string/performance_text" android:layout_gravity="center_horizontal"></TextView>
+<EditText android:contentDescription="Recognition results" android:drawSelectorOnTop="true" android:gravity="left|top" android:id="@+id/EditText01" android:textSize="30dip" android:text="Text goes here..." android:layout_width="fill_parent" android:layout_height="match_parent" android:textAppearance="@+id/EditText01" android:autoText="false" android:hint="improved hypothesis appears here" ></EditText>
+
+
+
+</LinearLayout>
