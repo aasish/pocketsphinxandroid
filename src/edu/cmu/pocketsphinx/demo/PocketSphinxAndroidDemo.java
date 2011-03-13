@@ -6,6 +6,9 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -143,4 +146,56 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 			}
 		});
 	}
+	
+	public boolean onCreateOptionsMenu(Menu menu){
+
+		
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.menu, menu);
+		
+
+		return true;
+
+		}
+	
+	public boolean onOptionsItemSelected (MenuItem item){
+
+		switch (item.getItemId()){
+
+		case R.id.download_data:
+			downloadData();
+		/* Actions in case that Edid Contacts is pressed */
+
+		return true;
+
+		case R.id.configure :
+
+		/* Actions in case that Delete Contact is pressed */
+
+		return true;
+		
+		case R.id.exit : 
+			
+		return true;
+
+		}
+
+
+
+		return false;
+
+		}
+	
+	public void downloadData(){
+		
+		
+	}
+
+
+
+		
+
+
+
+		
 }
