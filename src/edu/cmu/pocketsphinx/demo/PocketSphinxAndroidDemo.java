@@ -4,6 +4,7 @@ import java.util.Date;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -15,6 +16,7 @@ import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.content.*;
 
 public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener, RecognitionListener {
 	static {
@@ -172,15 +174,17 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 			downloadData();
 		
 		return true;
-
-		case R.id.configure :
-			setConfiguration();
 	
-
-		return true;
-		
 		case R.id.exit : 
 			exitApplication();
+		return true;
+		
+		case R.id.about :
+			showAboutActivity();
+		return true;
+		
+		case R.id.configure :
+			showConfigureActivity();
 		return true;
 	  }
 	  return false;
@@ -208,7 +212,14 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 		//PocketSphinxSettings
 	}
 
-	
+	public void showAboutActivity(){
+		
+		Intent i = new Intent(this, AboutPocketSphinx.class);
+		startActivity(i);
+	}
+	public void showConfigureActivity(){
+		
+	}
 
 		
 
