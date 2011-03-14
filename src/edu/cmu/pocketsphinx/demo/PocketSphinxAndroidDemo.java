@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.content.*;
+import android.graphics.Color;
 
 public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener, RecognitionListener {
 	static {
@@ -55,6 +56,8 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 	 * Performance counter view.
 	 */
 	TextView performance_text;
+	
+	TextView which_pass;
 	/**
 	 * Editable text view.
 	 */
@@ -75,6 +78,8 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 	public boolean onTouch(View v, MotionEvent event) {
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_DOWN:
+			this.which_pass.setTextColor(Color.RED);
+			this.which_pass.setText("First Pass");
 			start_date = new Date();
 			this.listening = true;
 			this.rec.start();
@@ -100,7 +105,7 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 
 	/** Called when the activity is first created. */
 	public void onCreate(Bundle savedInstanceState) {
-		CharSequence title = "Carnegie Mellon PocketSphinx Recognizer Demo";
+		CharSequence title = "Carnegie Mellon PocketSphinx Demonstration";
 		this.setTitle(title);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
@@ -111,6 +116,7 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 		Button b = (Button) findViewById(R.id.Button01);
 		b.setOnTouchListener(this);
 		this.performance_text = (TextView) findViewById(R.id.PerformanceText);
+		this.which_pass = (TextView)findViewById(R.id.WhichPass);
 		this.edit_text = (EditText) findViewById(R.id.EditText01);
 		this.rec.setRecognitionListener(this);
 		this.rec_thread.start();
@@ -122,7 +128,9 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 		final String hyp = b.getString("hyp");
 		that.edit_text.post(new Runnable() {
 			public void run() {
-				that.edit_text.setText("First Pass:\n"+hyp);
+				that.which_pass.setTextColor(Color.RED);
+				that.which_pass.setText("First Pass");
+				that.edit_text.setText(hyp);
 			}
 		});
 	}
@@ -133,7 +141,10 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 		final PocketSphinxAndroidDemo that = this;
 		this.edit_text.post(new Runnable() {
 			public void run() {
-				that.edit_text.setText("Final Pass:\n"+ hyp);
+				that.which_pass.setTextColor(Color.GREEN);
+				that.which_pass.setText("Final Pass");
+				
+				that.edit_text.setText(hyp);
 				Date end_date = new Date();
 				long nmsec = end_date.getTime() - that.start_date.getTime();
 				float rec_dur = (float)nmsec / 1000;
@@ -170,11 +181,18 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 
 		switch (item.getItemId()){
 
+		/*
 		case R.id.download_data:
-			downloadData();
+			//downloadData();
+			showFillerActivity();
 		
 		return true;
 	
+		case R.id.configure :
+			//showConfigureActivity();
+			showFillerActivity();
+		return true;
+		*/
 		case R.id.exit : 
 			exitApplication();
 		return true;
@@ -183,9 +201,7 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 			showAboutActivity();
 		return true;
 		
-		case R.id.configure :
-			showConfigureActivity();
-		return true;
+		
 	  }
 	  return false;
 
@@ -220,7 +236,10 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 	public void showConfigureActivity(){
 		
 	}
-
+	public void showFillerActivity(){
+		Intent i = new Intent(this, FillerClass.class);
+		startActivity(i);
+	}
 		
 
 

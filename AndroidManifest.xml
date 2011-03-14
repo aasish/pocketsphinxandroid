@@ -25,6 +25,14 @@
             </intent-filter>
        
 	   </activity>	
+	   <activity android:name=".FillerClass">
+	   		     <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+       
+	   </activity>
+	   
     </application>
     <uses-sdk android:minSdkVersion="8"/>
 

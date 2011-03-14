@@ -4,12 +4,19 @@
   android:id="@+id/AboutPS"	 
   android:layout_width="match_parent"
   android:layout_height="match_parent"
-   android:text="This is a help menu about PocketSphinx Android application. 
-
-In this application you can click on the menu for help.
-
-Click on the back button on your phone to go back to the actual application.
-
-Long click here to go to the application.
+  android:textSize="15sp"
+  android:textStyle="bold"
+  android:textColor="#ffffff"
+   android:text="
+- 'Hold and Speak' means: press, wait for orange button, talk, then let go.\n\n
+- Don't hold the phone so that the mic is covered\n\n
+- In the text area, you can touch a word and edit it\n\n
+- first pass results are computed realtime by the program as you speak \n\n
+- final pass results are generated after taking entire context into consideration\n\n
+- Click on the back button on your phone to go back to the actual application.\n\n
+- You can get the source code from\n
+  https://www.sourceforge.net/projects/cmusphinx/ \n\n 
+- For further assistance contact \n 
+  air@cs.cmu.edu, dhuggins@cs.cmu.edu or aasish@cs.cmu.edu
    ">
 </TextView>
