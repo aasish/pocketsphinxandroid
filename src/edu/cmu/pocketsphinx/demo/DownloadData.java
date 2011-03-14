@@ -1,4 +1,5 @@
 package edu.cmu.pocketsphinx.demo;
+import android.os.Environment;
 import android.util.Log; 
 
 import java.io.BufferedInputStream;
@@ -29,7 +30,6 @@ public class DownloadData {
 		new Thread() {
 			public void run() {
 				save(url, filename);
-				decompressData(filename, "");
 			}
 		}.start();
 	}
@@ -41,10 +41,12 @@ public class DownloadData {
     		
     		Log.v("PocketSphinx.DownloadData","Trying to save "+url+" as "+filename);
     		URL u = new URL(url);
+    		
     		URLConnection uc = u.openConnection();
     		int contentLength = uc.getContentLength();
 
     		totalFileLength = contentLength;
+    		Log.v("PocketSphinx.DownloadData","Trying to save the file of length "+contentLength);
     		finishedFileLength = 0;
     		
     		InputStream raw = uc.getInputStream();
@@ -79,6 +81,9 @@ public class DownloadData {
     		out.write(data);
     		out.flush();
     		out.close();
+    		
+			decompressData(filename, Environment.getExternalStorageDirectory()+"/Android/data/");
+
     		finished = true;
     		success = true;
     		return true;
@@ -123,6 +128,9 @@ class Decompress {
       ZipInputStream zin = new ZipInputStream(fin); 
       ZipEntry ze = null; 
       while ((ze = zin.getNextEntry()) != null) { 
+    	if(ze.getName().endsWith("raw"))
+    		continue;
+    	
         Log.v("Decompress", "Unzipping " + ze.getName()); 
  
         if(ze.isDirectory()) { 

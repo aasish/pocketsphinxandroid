@@ -3,9 +3,13 @@ package edu.cmu.pocketsphinx.demo;
 import java.util.Date;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.app.AlertDialog.Builder;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -62,6 +66,8 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 	 * Editable text view.
 	 */
 	EditText edit_text;
+	private ProgressDialog pd;
+	private Handler mHandler;
 	
 	/**
 	 * Respond to touch events on the Speak button.
@@ -120,6 +126,8 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 		this.edit_text = (EditText) findViewById(R.id.EditText01);
 		this.rec.setRecognitionListener(this);
 		this.rec_thread.start();
+        mHandler = new Handler();
+
 	}
 
 	/** Called when partial results are generated. */
@@ -181,10 +189,10 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 
 		switch (item.getItemId()){
 
-		/*
+		
 		case R.id.download_data:
-			//downloadData();
-			showFillerActivity();
+			downloadData();
+			//showFillerActivity();
 		
 		return true;
 	
@@ -192,7 +200,7 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 			//showConfigureActivity();
 			showFillerActivity();
 		return true;
-		*/
+		
 		case R.id.exit : 
 			exitApplication();
 		return true;
@@ -208,10 +216,81 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
     }
 	
 	public void downloadData(){
-		String url = "tts.speech.cs.cmu.edu/apappu/android/edu.cmu.pocketsphinx.temp.zip";
-		String filename = "edu.cmu.pocketsphinx.temp.zip";
+		final String url = "http://tts.speech.cs.cmu.edu/apappu/android/edu.cmu.pocketsphinx.zip";
+		final String filename = Environment.getExternalStorageDirectory()+"/Android/data/edu.cmu.pocketsphinx.zip";
+		pd = new ProgressDialog(this);
+		pd.setCancelable(true);
+		pd.setIndeterminate(true);
+		pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+//		pd.setButton(ProgressDialog.BUTTON_NEGATIVE, "Cancel", new OnClickListener() {
+//
+//			@Override
+//			public void onClick(DialogInterface dialog, int which) {
+//				fdload.abort();
+//			}
+//		});
+		pd.show();
 		
-		downloader.saveUrlAsFile(url, filename);
+		final Builder voicedownloadSuccessStatus = new AlertDialog.Builder(this);
+		voicedownloadSuccessStatus.setPositiveButton("Ok",null);
+		new Thread() {
+    		public void run() { 
+    			downloader.saveUrlAsFile(url, filename);
+    			while(downloader.totalFileLength == 0) {
+    				if (downloader.finished)
+    					break;
+    			}
+    			runOnUiThread(new Runnable() {
+
+    				@Override
+    				public void run() {
+    					pd.setIndeterminate(false);
+    					pd.setMax(downloader.totalFileLength);
+    				}
+    			});
+    			int prev = 0;
+    			while(!downloader.finished) {
+    				if (downloader.finishedFileLength > prev) {
+    					prev = downloader.finishedFileLength;
+    					runOnUiThread(new Runnable() {
+
+        					@Override
+        					public void run() {
+        						pd.setProgress(downloader.finishedFileLength);
+        					}
+        				});
+    				}
+    			}
+    			runOnUiThread(new Runnable() {
+
+					@Override
+					public void run() {
+
+		    			pd.dismiss();
+
+					}
+				});
+    			if(!downloader.success) {
+    				Log.e("PocketSphinxAndroid Demo", "data download failed!");
+    				if(downloader.abortDownload)
+    					voicedownloadSuccessStatus.setMessage("download aborted.");
+    				else
+    					voicedownloadSuccessStatus.setMessage("download failed! Check your internet settings.");
+    			}
+    			else {
+    				voicedownloadSuccessStatus.setMessage("download succeeded");
+    			}
+    			mHandler.post(new Runnable() {
+
+					@Override
+					public void run() {
+						voicedownloadSuccessStatus.show();
+					}
+				});
+    			
+    		}
+    	}.start();
+		
 		
 	}
 	
