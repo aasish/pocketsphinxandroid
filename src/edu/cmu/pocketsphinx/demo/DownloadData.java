@@ -38,7 +38,10 @@ public class DownloadData {
     	try {
    		
     		abortDownload = false;
-    		
+    		 
+
+    		      
+    		  
     		Log.v("PocketSphinx.DownloadData","Trying to save "+url+" as "+filename);
     		URL u = new URL(url);
     		
@@ -122,7 +125,19 @@ class Decompress {
     _dirChecker(""); 
   } 
  
-  public void unzip() { 
+  public void unzip() {
+	  /*
+	   * ZipFile zip = new ZipFile(zipFile);
+	   *    InputStream is = zip.getInputStream(entry); // get the input stream
+    OutputStream os = new java.io.FileOutputStream(f);
+    byte[] buf = new byte[4096];
+    int r;
+    while ((r = is.read(buf)) != -1) {
+      os.write(buf, 0, r);
+    }
+    os.close();
+    is.close();
+	   */
     try  { 
       FileInputStream fin = new FileInputStream(_zipFile); 
       ZipInputStream zin = new ZipInputStream(fin); 

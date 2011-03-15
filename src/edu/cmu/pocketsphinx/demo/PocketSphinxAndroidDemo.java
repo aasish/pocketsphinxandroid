@@ -1,5 +1,6 @@
 package edu.cmu.pocketsphinx.demo;
 
+import java.io.File;
 import java.util.Date;
 
 import android.app.Activity;
@@ -115,18 +116,22 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 		this.setTitle(title);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		this.rec = new RecognizerTask();
+        mHandler = new Handler();
+
 		this.downloader = new DownloadData();
-		this.rec_thread = new Thread(this.rec);
-		this.listening = false;
+		downloadData();
+		
 		Button b = (Button) findViewById(R.id.Button01);
 		b.setOnTouchListener(this);
 		this.performance_text = (TextView) findViewById(R.id.PerformanceText);
 		this.which_pass = (TextView)findViewById(R.id.WhichPass);
 		this.edit_text = (EditText) findViewById(R.id.EditText01);
+		
+		this.rec = new RecognizerTask();
+		this.rec_thread = new Thread(this.rec);
+		this.listening = false;
 		this.rec.setRecognitionListener(this);
 		this.rec_thread.start();
-        mHandler = new Handler();
 
 	}
 
@@ -216,10 +221,15 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
     }
 	
 	public void downloadData(){
-		final String url = "http://tts.speech.cs.cmu.edu/apappu/android/edu.cmu.pocketsphinx.zip";
-		final String filename = Environment.getExternalStorageDirectory()+"/Android/data/edu.cmu.pocketsphinx.zip";
+		final String url = "http://tts.speech.cs.cmu.edu/apappu/android/edu.cmu.pocketsphinx.temp.zip";
+		final String filename = Environment.getExternalStorageDirectory()+"/Android/data/edu.cmu.pocketsphinx.temp.zip";
+		File f = new File(filename);
+//		if(f.exists())
+//		{
+//			return;
+//		}
 		pd = new ProgressDialog(this);
-		pd.setCancelable(true);
+		pd.setCancelable(false);
 		pd.setIndeterminate(true);
 		pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 //		pd.setButton(ProgressDialog.BUTTON_NEGATIVE, "Cancel", new OnClickListener() {

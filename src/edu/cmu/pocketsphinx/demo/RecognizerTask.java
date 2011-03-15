@@ -6,6 +6,7 @@ import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import edu.cmu.pocketsphinx.Config;
 import edu.cmu.pocketsphinx.Decoder;
@@ -160,19 +161,20 @@ public class RecognizerTask implements Runnable {
 	}
 
 	public RecognizerTask() {
+		String filePath = Environment.getExternalStorageDirectory()+"/Android/data/edu.cmu.pocketsphinx.temp";
 		pocketsphinx
-				.setLogfile("/sdcard/Android/data/edu.cmu.pocketsphinx/pocketsphinx.log");
+				.setLogfile(filePath+"/pocketsphinx.log");
 		Config c = new Config();
 		/*
 		 * In 2.2 and above we can use getExternalFilesDir() or whatever it's
 		 * called
 		 */
 		c.setString("-hmm",
-				"/sdcard/Android/data/edu.cmu.pocketsphinx/hmm/en_US/hub4wsj_sc_8k");
+				filePath+"/hmm/en_US/hub4wsj_sc_8k");
 		c.setString("-dict",
-				"/sdcard/Android/data/edu.cmu.pocketsphinx/lm/en_US/hub4.5000.dic");
+				filePath+"/lm/en_US/hub4.5000.dic");
 		c.setString("-lm",
-				"/sdcard/Android/data/edu.cmu.pocketsphinx/lm/en_US/hub4.5000.DMP");
+				filePath+"/lm/en_US/hub4.5000.DMP");
 		/*
 		c.setString("-hmm",
 		"/sdcard/Android/data/edu.cmu.pocketsphinx/hmm/zh/tdt_sc_8k");
@@ -181,7 +183,7 @@ public class RecognizerTask implements Runnable {
 		c.setString("-lm",
 		"/sdcard/Android/data/edu.cmu.pocketsphinx/lm/zh_TW/gigatdt.5000.DMP");
 		*/
-		c.setString("-rawlogdir", "/sdcard/Android/data/edu.cmu.pocketsphinx");
+		c.setString("-rawlogdir", filePath);
 		c.setFloat("-samprate", 8000.0);
 		c.setInt("-maxhmmpf", 2000);
 		c.setInt("-maxwpf", 10);
