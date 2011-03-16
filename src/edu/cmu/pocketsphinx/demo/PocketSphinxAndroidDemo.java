@@ -68,7 +68,6 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 	 */
 	EditText edit_text;
 	private ProgressDialog pd;
-	private Handler mHandler;
 	
 	/**
 	 * Respond to touch events on the Speak button.
@@ -116,9 +115,8 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 		this.setTitle(title);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-        mHandler = new Handler();
 
-		this.downloader = new DownloadData();
+		
 		downloadData();
 		
 		Button b = (Button) findViewById(R.id.Button01);
@@ -127,13 +125,16 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 		this.which_pass = (TextView)findViewById(R.id.WhichPass);
 		this.edit_text = (EditText) findViewById(R.id.EditText01);
 		
-		this.rec = new RecognizerTask();
+		String[] defaultConfig = getConfiguration();
+		this.rec = new RecognizerTask(defaultConfig[0],defaultConfig[1],defaultConfig[2]);
 		this.rec_thread = new Thread(this.rec);
 		this.listening = false;
 		this.rec.setRecognitionListener(this);
 		this.rec_thread.start();
 
 	}
+	
+	
 
 	/** Called when partial results are generated. */
 	public void onPartialResults(Bundle b) {
@@ -220,88 +221,10 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 
     }
 	
-	public void downloadData(){
-		final String url = "http://tts.speech.cs.cmu.edu/apappu/android/edu.cmu.pocketsphinx.temp.zip";
-		final String filename = Environment.getExternalStorageDirectory()+"/Android/data/edu.cmu.pocketsphinx.temp.zip";
-		File f = new File(filename);
-//		if(f.exists())
-//		{
-//			return;
-//		}
-		pd = new ProgressDialog(this);
-		pd.setCancelable(false);
-		pd.setIndeterminate(true);
-		pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-//		pd.setButton(ProgressDialog.BUTTON_NEGATIVE, "Cancel", new OnClickListener() {
-//
-//			@Override
-//			public void onClick(DialogInterface dialog, int which) {
-//				fdload.abort();
-//			}
-//		});
-		pd.show();
-		
-		final Builder voicedownloadSuccessStatus = new AlertDialog.Builder(this);
-		voicedownloadSuccessStatus.setPositiveButton("Ok",null);
-		new Thread() {
-    		public void run() { 
-    			downloader.saveUrlAsFile(url, filename);
-    			while(downloader.totalFileLength == 0) {
-    				if (downloader.finished)
-    					break;
-    			}
-    			runOnUiThread(new Runnable() {
-
-    				@Override
-    				public void run() {
-    					pd.setIndeterminate(false);
-    					pd.setMax(downloader.totalFileLength);
-    				}
-    			});
-    			int prev = 0;
-    			while(!downloader.finished) {
-    				if (downloader.finishedFileLength > prev) {
-    					prev = downloader.finishedFileLength;
-    					runOnUiThread(new Runnable() {
-
-        					@Override
-        					public void run() {
-        						pd.setProgress(downloader.finishedFileLength);
-        					}
-        				});
-    				}
-    			}
-    			runOnUiThread(new Runnable() {
-
-					@Override
-					public void run() {
-
-		    			pd.dismiss();
-
-					}
-				});
-    			if(!downloader.success) {
-    				Log.e("PocketSphinxAndroid Demo", "data download failed!");
-    				if(downloader.abortDownload)
-    					voicedownloadSuccessStatus.setMessage("download aborted.");
-    				else
-    					voicedownloadSuccessStatus.setMessage("download failed! Check your internet settings.");
-    			}
-    			else {
-    				voicedownloadSuccessStatus.setMessage("download succeeded");
-    			}
-    			mHandler.post(new Runnable() {
-
-					@Override
-					public void run() {
-						voicedownloadSuccessStatus.show();
-					}
-				});
-    			
-    		}
-    	}.start();
-		
-		
+	public void downloadData()
+	{
+			Intent i = new Intent(this,DownloadData.class);
+			startActivity(i);
 	}
 	
 	public void exitApplication(){
@@ -315,8 +238,18 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 		
 		//may be open a new activity
 		//PocketSphinxSettings
+		
 	}
-
+	public String[] getConfiguration(){
+		//read from config file
+		String[] config = new String[3];
+		boolean exists = (new File("filename")).exists();
+		if(exists){
+			
+		}
+		
+		return config;
+	}
 	public void showAboutActivity(){
 		
 		Intent i = new Intent(this, AboutPocketSphinx.class);
@@ -329,6 +262,7 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 		Intent i = new Intent(this, FillerClass.class);
 		startActivity(i);
 	}
+	
 		
 
 

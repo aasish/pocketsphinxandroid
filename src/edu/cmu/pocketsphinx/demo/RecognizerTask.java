@@ -159,15 +159,20 @@ public class RecognizerTask implements Runnable {
 	public boolean getUsePartials() {
 		return this.use_partials;
 	}
-
-	public RecognizerTask() {
-		String filePath = Environment.getExternalStorageDirectory()+"/Android/data/edu.cmu.pocketsphinx.temp";
+	
+	public RecognizerTask(String hmm, String lm, String dict) {
+		String filePath = Environment.getExternalStorageDirectory()+"/Android/data/edu.cmu.pocketsphinx";
 		pocketsphinx
 				.setLogfile(filePath+"/pocketsphinx.log");
 		Config c = new Config();
 		/*
 		 * In 2.2 and above we can use getExternalFilesDir() or whatever it's
 		 * called
+		 */
+		/*
+		 * hub4wsj_sc_8k	hub4.5000.dic	hub4.5000.DMP
+		 * tdt_sc_8k	mandarin_notone.dic	gigatdt.5000.DMP
+		 * 
 		 */
 		c.setString("-hmm",
 				filePath+"/hmm/en_US/hub4wsj_sc_8k");
@@ -191,6 +196,8 @@ public class RecognizerTask implements Runnable {
 		c.setBoolean("-backtrace", true);
 		c.setBoolean("-bestpath", false);
 		this.ps = new Decoder(c);
+		
+		
 		this.audio = null;
 		this.audioq = new LinkedBlockingQueue<short[]>();
 		this.use_partials = false;

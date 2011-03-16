@@ -16,7 +16,7 @@ import android.widget.Spinner;
 
 public class PocketSphinxSettings extends Activity{
 	private final static String PS_DATA_PATH = Environment.getExternalStorageDirectory()
-    + "/edu.cmu.pocketsphinx/";
+    + "Android/data/edu.cmu.pocketsphinx/";
 	private ArrayAdapter<CharSequence> mLMList;
 	private ArrayAdapter<CharSequence> mAMList;
 	
@@ -31,7 +31,6 @@ public class PocketSphinxSettings extends Activity{
 			availableAM = Utility.readLines(PS_DATA_PATH+"am.list");
 		} catch (IOException e) {
 			Log.e("Flite.DownloadVoiceData","Could not read voice list");
-			abort("Could not download voice data. Please check your internet connectivity.");			
 		}
     setContentView(R.layout.config);
 
@@ -42,18 +41,5 @@ public class PocketSphinxSettings extends Activity{
    // adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     //LMspinner.setAdapter(adapter);
 }
-	private void abort(String str) {
-		Log.e("Flite.DownloadVoiceData", str);
-		new AlertDialog.Builder(this)
-	      .setMessage(str)
-	      .setPositiveButton("Ok",new OnClickListener() {
-
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				finish();				
-			}
-		})
-	      .show();
-	}
 
 }
