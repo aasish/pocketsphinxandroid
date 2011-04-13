@@ -5,12 +5,12 @@
   
   android:layout_width="match_parent"
   android:layout_height="match_parent">
-<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/txtInfoLM" android:textSize="10sp" android:text="Choose the Language Model"></TextView>
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/txtInfoLM" android:textSize="20sp" android:text="Choose the Language Model"></TextView>
 <Spinner  android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/spnLM"></Spinner>
 
-<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/txtInfoAM" android:textSize="10sp" android:text="Choose the Acoustic Model "></TextView>
+<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/txtInfoAM" android:textSize="20sp" android:text="Choose the Acoustic Model "></TextView>
 <Spinner  android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/spnAM"></Spinner>
 
-<TextView  android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/txtpad1" android:minLines="3" android:textSize="10sp"></TextView>
-<Button android:layout_height="wrap_content" android:id="@+id/bsetLMAM" android:text="set selected LM and AM" android:textSize="10sp" android:layout_width="fill_parent"></Button>
+<TextView  android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/txtpad1" android:minLines="3" android:textSize="20sp"></TextView>
+<Button android:layout_height="wrap_content" android:id="@+id/bsetLMAM" android:text="set selected LM and AM" android:textSize="20sp" android:layout_width="fill_parent"></Button>
 </LinearLayout>

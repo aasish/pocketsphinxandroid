@@ -31,6 +31,7 @@ public class RecognizerTask implements Runnable {
 	 * 
 	 * @author David Huggins-Daines <dhuggins@cs.cmu.edu>
 	 */
+	private static final String PS_DATA_PATH = Environment.getExternalStorageDirectory()+"/Android/data/edu.cmu.pocketsphinx";
 	class AudioTask implements Runnable {
 		/**
 		 * Queue on which audio blocks are placed.
@@ -161,9 +162,9 @@ public class RecognizerTask implements Runnable {
 	}
 	
 	public RecognizerTask(String hmm, String lm, String dict) {
-		String filePath = Environment.getExternalStorageDirectory()+"/Android/data/edu.cmu.pocketsphinx";
+		
 		pocketsphinx
-				.setLogfile(filePath+"/pocketsphinx.log");
+				.setLogfile(PS_DATA_PATH+"/pocketsphinx.log");
 		Config c = new Config();
 		/*
 		 * In 2.2 and above we can use getExternalFilesDir() or whatever it's
@@ -174,12 +175,20 @@ public class RecognizerTask implements Runnable {
 		 * tdt_sc_8k	mandarin_notone.dic	gigatdt.5000.DMP
 		 * 
 		 */
+		Log.d("PocketSphinx.RecognizerTask",hmm+"\t"+lm+"\t"+dict);
+//		c.setString("-hmm",
+//				PS_DATA_PATH+"/hmm/"+hmm);
+//		c.setString("-dict",
+//				PS_DATA_PATH+"/lm/"+dict);
+//		c.setString("-lm",
+//				PS_DATA_PATH+"/lm/"+lm);
+		
 		c.setString("-hmm",
-				filePath+"/hmm/en_US/hub4wsj_sc_8k");
+				"/sdcard/Android/data/edu.cmu.pocketsphinx/hmm/"+hmm);
 		c.setString("-dict",
-				filePath+"/lm/en_US/hub4.5000.dic");
+				"/sdcard/Android/data/edu.cmu.pocketsphinx/lm/"+dict);
 		c.setString("-lm",
-				filePath+"/lm/en_US/hub4.5000.DMP");
+				"/sdcard/Android/data/edu.cmu.pocketsphinx/lm/"+lm);
 		/*
 		c.setString("-hmm",
 		"/sdcard/Android/data/edu.cmu.pocketsphinx/hmm/zh/tdt_sc_8k");
@@ -188,7 +197,7 @@ public class RecognizerTask implements Runnable {
 		c.setString("-lm",
 		"/sdcard/Android/data/edu.cmu.pocketsphinx/lm/zh_TW/gigatdt.5000.DMP");
 		*/
-		c.setString("-rawlogdir", filePath);
+		c.setString("-rawlogdir", PS_DATA_PATH);
 		c.setFloat("-samprate", 8000.0);
 		c.setInt("-maxhmmpf", 2000);
 		c.setInt("-maxwpf", 10);

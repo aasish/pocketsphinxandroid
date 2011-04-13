@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -32,7 +33,7 @@ public class DownloadData extends Activity {
 	public int finishedFileLength;
 	private final static String PS_DATA_PATH = Environment
 			.getExternalStorageDirectory()
-			+ "Android/data/edu.cmu.pocketsphinx/";
+			+ "/Android/data/edu.cmu.pocketsphinx/";
 	private final static String ROOT_URL = "http://tts.speech.cs.cmu.edu/apappu/android/edu.cmu.pocketsphinx/";
 	public boolean abortDownload;
 	public boolean finished;
@@ -99,9 +100,24 @@ public class DownloadData extends Activity {
 
 		mHandler = new Handler();
 		populateModels();
-
+		
 	}
 
+//	public boolean onKeyDown(int keyCode, KeyEvent event) {
+//	    if (keyCode == KeyEvent.KEYCODE_BACK) {
+//
+//	    	setResult(RESULT_OK);
+//	    	finish();
+//	        return true;
+//	    }
+//	    return super.onKeyDown(keyCode, event);
+//	}
+	
+	public void onBackPressed(){
+		setResult(RESULT_OK);
+		finish();
+	}
+	
 	public void saveUrlAsFile(final String url, final String filename) {
 		finished = false;
 		success = false;
@@ -126,7 +142,7 @@ public class DownloadData extends Activity {
 			try {
 				Log.e("PocketSphinx.DownloadData", PS_DATA_PATH);
 				success = new File(Environment.getExternalStorageDirectory()
-						+ "Android/data/" + "edu.cmu.pocketsphinx/").mkdirs();
+						+ "/Android/data/" + "edu.cmu.pocketsphinx/").mkdirs();
 			} catch (Exception e) {
 				Log.e("PocketSphinx.DownloadData",
 						"Could not create directory structure. "
@@ -140,12 +156,12 @@ public class DownloadData extends Activity {
 			}
 		}
 
-		String currentConf = PS_DATA_PATH + "current.conf";
+		String currentConf = PS_DATA_PATH + "currentconf";
 		if (!Utility.pathExists(currentConf)) {
 			Log
 					.e("PocketSphinx.DownloadData",
 							"current conf file doesn't exist. Try getting it from server.");
-			String currentConfURL = ROOT_URL + "current.conf";
+			String currentConfURL = ROOT_URL + "currentconf";
 			boolean savedCurrentConf = Utility.saveUrlAsFile(currentConfURL,
 					currentConf);
 
@@ -157,11 +173,11 @@ public class DownloadData extends Activity {
 						"Successfully downloaded current conf file");
 		}
 
-		String amListFile = PS_DATA_PATH + "am.list";
+		String amListFile = PS_DATA_PATH + "am-list";
 		if (!Utility.pathExists(amListFile)) {
 			Log.e("PocketSphinx.DownloadData",
 					"AM list file doesn't exist. Try getting it from server.");
-			String amListURL = ROOT_URL + "am.list";
+			String amListURL = ROOT_URL + "am-list";
 
 			boolean savedAMList = Utility.saveUrlAsFile(amListURL, amListFile);
 
@@ -174,11 +190,11 @@ public class DownloadData extends Activity {
 		}
 
 		// same with lm list
-		String lmListFile = PS_DATA_PATH + "lm.list";
+		String lmListFile = PS_DATA_PATH + "lm-list";
 		if (!Utility.pathExists(lmListFile)) {
 			Log.e("PocketSphinx.DownloadData",
 					"AM list file doesn't exist. Try getting it from server.");
-			String lmListURL = ROOT_URL + "lm.list";
+			String lmListURL = ROOT_URL + "lm-list";
 
 			boolean savedLMList = Utility.saveUrlAsFile(lmListURL, lmListFile);
 
@@ -214,8 +230,9 @@ public class DownloadData extends Activity {
 		// show models through the spinners, ArrayList of data
 
 		try {
-			availableLM = Utility.readLines(PS_DATA_PATH + "lm.list");
-			availableAM = Utility.readLines(PS_DATA_PATH + "am.list");
+			availableLM = Utility.readLines(PS_DATA_PATH + "lm-list");
+			availableAM = Utility.readLines(PS_DATA_PATH + "am-list");
+			
 		} catch (IOException e) {
 			Log.e("PocketSphinx.DownloadData", "Could not read the model list");
 		}
@@ -224,9 +241,11 @@ public class DownloadData extends Activity {
 		mLMList.clear();
 		for (String s : availableLM) {
 
-			String lmFile = PS_DATA_PATH + "lm/" + s;
+			String lmFile = PS_DATA_PATH + "lm/" + s.split("\t")[0];
 			if (!Utility.pathExists(lmFile)) {
 				// We need to install this lm.
+				if(!s.endsWith(".dic"))
+					s = s.concat(".dic");
 				mLMList.add(s);
 			}
 		}
@@ -260,43 +279,143 @@ public class DownloadData extends Activity {
 
 		Spinner sp = (Spinner) findViewById(R.id.spnLM);
 		ArrayAdapter<CharSequence> list = mLMList;
-		String datapath = PS_DATA_PATH + "lm/";
-		String dataURL = ROOT_URL + "lm/";
+	
+		
 		// if you find am then change the default to AM
+		Log.i("PocketSphinx.DownloadData", "downloading " + LMOrAM);
+		
 		if (LMOrAM.equals("am")) {
 			sp = (Spinner) findViewById(R.id.spnAM);
 			list = mAMList;
-			datapath = PS_DATA_PATH + "hmm/";
-			dataURL = ROOT_URL + "hmm/";
+			
 		}
-
-		String selectedModel = (String) list.getItem(sp
+		final String tempLMorAM = LMOrAM;
+	    final String selectedModel = (String) list.getItem(sp
 				.getSelectedItemPosition());
 
-		datapath += selectedModel;
-		try {
-			if (!Utility.pathExists(datapath))
-				if (!new File(datapath).mkdirs()) {
-					abort();
-				}
-		} catch (Exception e) {
-			abort();
-		}
+		Log.d("PocketSphinx.DownloadData", "downloading " + selectedModel);
+		//datapath += selectedModel;
+		//dataURL +=selectedModel;
+		
+		pd = new ProgressDialog(this);
+		pd.setTitle("Downloading ... " + selectedModel);
+		pd.setCancelable(false);
+		pd.setIndeterminate(true);
+		pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 
+		pd.show();
+		
+		new Thread() {
+			public void run() {
+			
+				
 		try {
+			String datapath = PS_DATA_PATH + "lm/";
+			String dataURL = ROOT_URL + "lm/";
+			
+			if(tempLMorAM.equals("am")){
+				datapath = PS_DATA_PATH + "hmm/";
+				dataURL = ROOT_URL + "hmm/";
+			}
 			if (dataURL.contains("hmm")) {
-				ArrayList<String> files = listRemoteDir(dataURL);
-				for (String f : files)
-					downloadData(dataURL + "/" + f, datapath + "/" + f);
-			} else
-				downloadData(dataURL, datapath);
+				
+				String modelPath = datapath+selectedModel;
+				String modelURL = dataURL + selectedModel;
+				
+				downloadAM(modelURL,modelPath);
+				} 
+		
+		
+			 else{
+				 downloadLM(dataURL,datapath,selectedModel);
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		while (totalFileLength == 0) {
+			if (finished)
+				break;	
+	}
+		runOnUiThread(new Runnable() {
+
+			@Override
+			public void run() {
+				pd.setIndeterminate(false);
+				pd.setMax(totalFileLength);
+			}
+		});
+			
+		int prev = 0;
+		while (!finished) {
+			if (finishedFileLength > prev) {
+				prev = finishedFileLength;
+				runOnUiThread(new Runnable() {
+
+					@Override
+					public void run() {
+						pd.setProgress(finishedFileLength);
+					}
+				});
+			}
+		}
+		runOnUiThread(new Runnable() {
+
+			@Override
+			public void run() {
+
+				pd.dismiss();
+
+			}
+		});
+
+
 
 	}
+		}.start();
+	}
+	
+	private  void downloadAM(String modelURL, String modelPath) throws Exception
+	{
+		totalFileLength = 0;
+		finishedFileLength = 0;
+		if (!Utility.pathExists(modelPath))
+			if (!new File(modelPath).mkdirs()) {
+				abort();
+			}
+		ArrayList<String> files = listRemoteDir(modelURL);
+		totalFileLength = files.size();
+		for (String f : files){
+			Log.d("PocketSphinx.DownloadData", "downloading " +modelURL + "/" + f);
 
+			Utility.saveUrlAsFile(modelURL + "/" + f, modelPath + "/" + f);
+			finishedFileLength+=1;
+		}
+		success = true;
+		finished = true;
+	}
+	private void downloadLM(String dataURL, String dataPath, String selectedModel)
+	{
+		totalFileLength =2;
+		finishedFileLength = 0;
+		
+		
+		String[] lmDic = selectedModel.split("\t");
+		Log.d("PocketSphinx.DownloadData", "downloading " + lmDic[1]);
+		Utility.saveUrlAsFile(dataURL+lmDic[1], dataPath+lmDic[1]);
+		finishedFileLength+=1;
+		
+		Utility.saveUrlAsFile(dataURL+lmDic[0], dataPath+lmDic[0]);
+		finishedFileLength+=1;
+
+		success = true;
+		finished = true;
+
+//		Utility.saveUrlAsFile("http://tts.speech.cs.cmu.edu/android/general/voices.list", PS_DATA_PATH+"voices.list");
+		
+	}
+
+	/*
 	private void downloadData(final String url, final String filename) {
 
 		pd = new ProgressDialog(this);
@@ -348,7 +467,7 @@ public class DownloadData extends Activity {
 		}.start();
 
 	}
-
+*/
 	private boolean save(String url, String filename) {
 		try {
 
@@ -357,9 +476,14 @@ public class DownloadData extends Activity {
 					+ filename);
 			URL u = new URL(url);
 
-			URLConnection uc = u.openConnection();
-			int contentLength = uc.getContentLength();
+			HttpURLConnection uc = (HttpURLConnection)u.openConnection();
+			uc.setReadTimeout(15 * 1000);
 
+			//URLConnection uc = u.openConnection();
+			int contentLength = uc.getContentLength();
+			
+			uc.connect();
+			
 			totalFileLength = contentLength;
 			Log.v("PocketSphinx.DownloadData",
 					"Trying to save the file of length " + contentLength);
@@ -389,10 +513,10 @@ public class DownloadData extends Activity {
 				return false;
 			}
 
-			if (offset != contentLength) {
-				throw new IOException("Only read " + offset
-						+ " bytes; Expected " + contentLength + " bytes");
-			}
+//			if (offset != contentLength) {
+//				throw new IOException("Only read " + offset
+//						+ " bytes; Expected " + contentLength + " bytes");
+//			}
 
 			FileOutputStream out = new FileOutputStream(filename);
 			out.write(data);
@@ -440,13 +564,13 @@ public class DownloadData extends Activity {
 					+ "</a>");
 
 			while ((line = reader.readLine()) != null) {
-				if (!line.contains("[DIR]") && !line.contains("[ICO]")
-						&& !line.contains("[IMG]")) {
+				if (!line.contains("[DIR]") && !line.contains("[ICO]")) {
 					Matcher m = p.matcher(line);
 					while (m.find()) {
 						String tempFileName = m.group().replace("</a>", "")
 								.replace(">", "");
 						files.add(tempFileName);
+						//Log.d("PocketSphinx.DownloadData", "downloading " + tempFileName);
 					}
 				}
 
