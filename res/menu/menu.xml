@@ -4,7 +4,7 @@
   
 <item android:id="@+id/download_data" android:title="Download Data" />
 
-<item android:id="@+id/configure" android:title="Configure" />
+<!--<item android:id="@+id/configure" android:title="Configure" />-->
 
 <item android:id="@+id/exit" android:title="Exit" />
 

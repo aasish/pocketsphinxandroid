@@ -1,5 +1,6 @@
 package edu.cmu.pocketsphinx.demo;
 
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,9 +21,11 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.content.*;
 import android.graphics.Color;
 
@@ -72,7 +75,12 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 	
 	final static int ACTIVITY_CREATE = 1;
 
-	EditText edit_text;
+	EditText words;
+	EditText number;
+	EditText digit;
+	EditText activeField;
+	String activeFieldStr = "";
+	
 	private ProgressDialog pd;
 	private final static String PS_DATA_PATH = Environment.getExternalStorageDirectory() + "/Android/data/edu.cmu.pocketsphinx/";
 
@@ -92,7 +100,7 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 	public boolean onTouch(View v, MotionEvent event) {
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_DOWN:
-			this.edit_text.setText("");
+			this.activeField.setText("");
 			
 			this.which_pass.setTextColor(Color.RED);
 			this.which_pass.setText("First Pass");
@@ -121,6 +129,13 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 
 	/** Called when the activity is first created. */
 	public void onCreate(Bundle savedInstanceState) {
+		
+		final Context context = getApplicationContext();
+		CharSequence text = "Hello toast!";
+		final int duration = Toast.LENGTH_SHORT;
+
+		
+		
 		CharSequence title = "Carnegie Mellon PocketSphinx Demonstration";
 		this.setTitle(title);
 		super.onCreate(savedInstanceState);
@@ -129,22 +144,70 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 		if(!Utility.pathExists(PS_DATA_PATH+"currentconf")){
 			downloadData();
 		}
-		else{
-	    	  String[] defaultConfig = getConfiguration();
-		  		this.rec = new RecognizerTask(defaultConfig[0],defaultConfig[1],defaultConfig[2]);
-		  		this.rec_thread = new Thread(this.rec);
-		  		this.listening = false;
-		  		this.rec.setRecognitionListener(this);
-		  		this.rec_thread.start();
-		}
+//		else{
+//	    	  String[] defaultConfig = getConfiguration();
+//		  		this.rec = new RecognizerTask(defaultConfig[0],defaultConfig[1],defaultConfig[2]);
+//		  		this.rec_thread = new Thread(this.rec);
+//		  		this.listening = false;
+//		  		this.rec.setRecognitionListener(this);
+//		  		this.rec_thread.start();
+//		}
 		
 		Button b = (Button) findViewById(R.id.Button01);
 		b.setOnTouchListener(this);
 		this.performance_text = (TextView) findViewById(R.id.PerformanceText);
 		this.which_pass = (TextView)findViewById(R.id.WhichPass);
-		this.edit_text = (EditText) findViewById(R.id.EditText01);
-		
+		this.words = (EditText) findViewById(R.id.EditText01);
+		//words.setInputType(0);
+		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(words.getWindowToken(), 0);
+		words.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+		    @Override
+		    public void onFocusChange(View v, boolean hasFocus) {
+		        if (hasFocus) {
+		         //change thte config
+		         final Toast toast = Toast.makeText(context, "Words", duration);
+		         toast.show();
+		         setConfiguration(1);
+		         activeField = words;
+		         activeFieldStr = "words";
+		        }
+		    }
+		});
+		this.number = (EditText) findViewById(R.id.EditText02);
+		number.setInputType(0);
+		imm.hideSoftInputFromWindow(number.getWindowToken(), 0);
 
+		number.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+		    @Override
+		    public void onFocusChange(View v, boolean hasFocus) {
+		        if (hasFocus) {
+		         //change thte config
+		        	final Toast toast = Toast.makeText(context, "Numbers", duration);
+		        	toast.show();
+		        	setConfiguration(2);
+		        	activeField = number;
+		        	activeFieldStr = "number";
+		        }
+		    }
+		});
+		this.digit = (EditText) findViewById(R.id.EditText03);
+		digit.setInputType(0);
+		imm.hideSoftInputFromWindow(digit.getWindowToken(), 0);
+
+		digit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+		    @Override
+		    public void onFocusChange(View v, boolean hasFocus) {
+		        if (hasFocus) {
+		        	final Toast toast = Toast.makeText(context, "Digits", duration);
+		        	toast.show();
+		        	setConfiguration(3);
+		        	activeField = digit;
+		        	activeFieldStr  = "digit";
+		        	}
+		    }
+		});
+		
 	}
 	
 	
@@ -153,11 +216,18 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 	public void onPartialResults(Bundle b) {
 		final PocketSphinxAndroidDemo that = this;
 		final String hyp = b.getString("hyp");
-		that.edit_text.post(new Runnable() {
+		
+		that.activeField.post(new Runnable() {
 			public void run() {
 				that.which_pass.setTextColor(Color.RED);
 				that.which_pass.setText("First Pass");
-				that.edit_text.setText(hyp);
+				if(that.activeFieldStr.equals("number")||that.activeFieldStr.equals("digit"))
+				{
+					that.activeField.setText(convertWordsToNumbers(hyp));
+				}
+				else{
+				that.activeField.setText(hyp);
+				}
 			}
 		});
 	}
@@ -166,12 +236,18 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 	public void onResults(Bundle b) {
 		final String hyp = b.getString("hyp");
 		final PocketSphinxAndroidDemo that = this;
-		this.edit_text.post(new Runnable() {
+		this.words.post(new Runnable() {
 			public void run() {
 				that.which_pass.setTextColor(Color.GREEN);
 				that.which_pass.setText("Final Pass");
 				
-				that.edit_text.setText(hyp);
+				if(that.activeFieldStr.equals("number")||that.activeFieldStr.equals("digit"))
+				{
+					that.activeField.setText(convertWordsToNumbers(hyp));
+				}
+				else{
+				that.activeField.setText(hyp);
+				}
 				Date end_date = new Date();
 				long nmsec = end_date.getTime() - that.start_date.getTime();
 				float rec_dur = (float)nmsec / 1000;
@@ -186,7 +262,7 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 
 	public void onError(int err) {
 		final PocketSphinxAndroidDemo that = this;
-		that.edit_text.post(new Runnable() {
+		that.activeField.post(new Runnable() {
 			public void run() {
 				that.rec_dialog.dismiss();
 			}
@@ -215,10 +291,10 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 		
 		return true;
 	
-		case R.id.configure :
-			showConfigureActivity();
-			
-		return true;
+//		case R.id.configure :
+//			showConfigureActivity();
+//			
+//		return true;
 		
 		case R.id.exit : 
 			exitApplication();
@@ -247,10 +323,38 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 	       this.finish();
 	}
 	
-	public void setConfiguration(){
-		
+	public void setConfiguration(int type){
+		//hardcoded
 		//may be open a new activity
 		//PocketSphinxSettings
+			String[] defaultConfig = new String[3];
+			switch(type){
+			
+			//default hub4 words
+			case 1:
+				defaultConfig[0] = "hub4wsj_sc_8k";
+				defaultConfig[1] = "hub4.5000.DMP";
+				defaultConfig[2] = "hub4.5000.dic";
+				break;
+			//numbers	
+			case 2:
+				defaultConfig[0] = "hub4wsj_sc_8k";
+				defaultConfig[1] = "number.DMP";
+				defaultConfig[2] = "number.dic";
+				break;
+			//digits	
+			case 3:
+				defaultConfig[0] = "tidigits";
+				defaultConfig[1] = "tidigits.DMP";
+				defaultConfig[2] = "tidigits.dic";
+				break;
+	
+			}
+	  		this.rec = new RecognizerTask(defaultConfig[0],defaultConfig[1],defaultConfig[2]);
+	  		this.rec_thread = new Thread(this.rec);
+	  		this.listening = false;
+	  		this.rec.setRecognitionListener(this);
+	  		this.rec_thread.start();
 		
 	}
 	public String[] getConfiguration(){
@@ -342,6 +446,30 @@ public class PocketSphinxAndroidDemo extends Activity implements OnTouchListener
 	    }
 	    
 	  }
+	}
+	
+	protected static String convertWordsToNumbers(String hyp)
+	{
+		String updatedHyp = "";
+		
+		String[] wordNum = SegmentNumber.segmentNum(hyp.toLowerCase()).replace(" | ","%").split("%");
+				
+		for(String word:wordNum){
+		try {
+			word = word.replace("| ","");
+			System.out.println(word);
+			if(word.equals(""))
+				continue;
+			String dig = ConvertWordToNumber.WithSeparator(ConvertWordToNumber.parse(word));
+			//System.out.println(dig);
+			updatedHyp+=dig+" ";
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		}
+		System.out.println(updatedHyp);
+		return updatedHyp;
 	}
 		
 }
