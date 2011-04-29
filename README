@@ -1,0 +1,15 @@
+Once you have checked out the code, do the following steps to setup your environment in eclipse.
+
+1. Install latest Android SDK.
+http://developer.android.com/sdk/installing.html
+
+2. Install ADT plugin from Eclipse (follow the steps from the link above you).
+
+3. Check out the source code from the repo.
+
+4. Create new android project from the eclipse and point it to the location of the checked out source.
+
+5. Connect your device and make sure you have enabled USB-debugging on your device (Settings->Manage Applications->Development->USB Debugging)
+
+6. Then install necessary drivers for the target device on your PC / Mac  with the help of instructions in the following link.
+http://developer.android.com/sdk/win-usb.html
