@@ -199,9 +199,7 @@ public class RecognizerTask implements Runnable {
 		*/
 		c.setString("-rawlogdir", PS_DATA_PATH);
 		c.setFloat("-samprate", 8000.0);
-		c.setInt("-maxhmmpf", 2000);
-		c.setInt("-maxwpf", 10);
-		c.setInt("-pl_window", 2);
+		c.setInt("-maxhmmpf", 10000);
 		c.setBoolean("-backtrace", true);
 		c.setBoolean("-bestpath", false);
 		this.ps = new Decoder(c);
